@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Organizer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">File Organizer</h1>
+        <form id="uploadForm" class="mt-4">
+            <div class="form-group">
+                <label for="file">Select File to Upload:</label>
+                <input type="file" id="file" name="file" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+        <button id="organizeButton" class="btn btn-success mt-3">Organize Files</button>
+        <div id="results" class="mt-5"></div>
+    </div>
+
+    <script>
+        document.getElementById("uploadForm").onsubmit = async function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const response = await fetch("/upload", { method: "POST", body: formData });
+            const result = await response.json();
+            if (result.success) {
+                alert("File uploaded: " + result.filename);
+            } else {
+                alert("Error: " + result.error);
+            }
+        };
+
+        document.getElementById("organizeButton").onclick = async function() {
+            const response = await fetch("/organize", { method: "POST" });
+            const result = await response.json();
+            let html = "<h3>Organized Files:</h3><ul>";
+            result.moved.forEach(file => {
+                html += `<li>${file.file} -> ${file.folder}</li>`;
+            });
+            html += "</ul>";
+            document.getElementById("results").innerHTML = html;
+        };
+    </script>
+</body>
+</html>
